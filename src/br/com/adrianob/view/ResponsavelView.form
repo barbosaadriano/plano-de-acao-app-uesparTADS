@@ -93,11 +93,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Selecionar"/>
           </Properties>
+          <BindingProperties>
+            <BindingProperty name="enabled" source="Form" sourcePath="${selecionar}" target="btSelecionar" targetPath="enabled" updateStrategy="0" immediately="false"/>
+          </BindingProperties>
         </Component>
         <Component class="javax.swing.JButton" name="btCancelar">
           <Properties>
             <Property name="text" type="java.lang.String" value="Cancelar"/>
           </Properties>
+          <BindingProperties>
+            <BindingProperty name="enabled" source="Form" sourcePath="${selecionar}" target="btCancelar" targetPath="enabled" updateStrategy="0" immediately="false"/>
+          </BindingProperties>
         </Component>
       </SubComponents>
     </Container>
@@ -136,11 +142,17 @@
       </Layout>
       <SubComponents>
         <Component class="javax.swing.JTextField" name="txtPesquisa">
+          <BindingProperties>
+            <BindingProperty name="enabled" source="Form" sourcePath="${pesquisar}" target="txtPesquisa" targetPath="enabled" updateStrategy="0" immediately="false"/>
+          </BindingProperties>
         </Component>
         <Component class="javax.swing.JButton" name="btPesquisar">
           <Properties>
             <Property name="text" type="java.lang.String" value="Pesquisar"/>
           </Properties>
+          <BindingProperties>
+            <BindingProperty name="enabled" source="Form" sourcePath="${pesquisar}" target="btPesquisar" targetPath="enabled" updateStrategy="0" immediately="false"/>
+          </BindingProperties>
         </Component>
       </SubComponents>
     </Container>
@@ -201,6 +213,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Excluir"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btExcluirActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -256,6 +271,13 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
         <Component class="javax.swing.JTable" name="tblLista">
+          <Properties>
+            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+              <Table columnCount="1" rowCount="0">
+                <Column editable="false" title="Nome" type="java.lang.String"/>
+              </Table>
+            </Property>
+          </Properties>
           <BindingProperties>
             <BindingProperty name="elements" source="listaResponsavel" target="tblLista" targetPath="elements" updateStrategy="0" immediately="true">
               <Subbinding sourcePath="${nome}">

@@ -9,6 +9,7 @@ import br.com.adrianob.model.domain.Responsavel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.List;
 import org.jdesktop.observablecollections.ObservableCollections;
 
 /**
@@ -17,6 +18,43 @@ import org.jdesktop.observablecollections.ObservableCollections;
  */
 public class ResponsavelView extends javax.swing.JFrame {
 
+    private boolean selecionar;
+
+    public static final String PROP_SELECIONAR = "selecionar";
+
+    public boolean isSelecionar() {
+        return selecionar;
+    }
+
+    public void setSelecionar(boolean selecionar) {
+        boolean oldSelecionar = this.selecionar;
+        this.selecionar = selecionar;
+        propertyChangeSupport.firePropertyChange(PROP_SELECIONAR, oldSelecionar, selecionar);
+    }
+
+    private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    private boolean pesquisar;
+
+    public static final String PROP_PESQUISAR = "pesquisar";
+
+    public boolean isPesquisar() {
+        return pesquisar;
+    }
+
+    public void setPesquisar(boolean pesquisar) {
+        boolean oldPesquisar = this.pesquisar;
+        this.pesquisar = pesquisar;
+        propertyChangeSupport.firePropertyChange(PROP_PESQUISAR, oldPesquisar, pesquisar);
+    }
 
     private Responsavel responsavelSelecionado;
 
@@ -25,17 +63,22 @@ public class ResponsavelView extends javax.swing.JFrame {
     }
 
     public void setResponsavelSelecionado(Responsavel responsavelSelecionado) {
+        Responsavel old = this.responsavelSelecionado;
         this.responsavelSelecionado = responsavelSelecionado;
+        propertyChangeSupport.firePropertyChange("responsavelSelecionado",
+                old, responsavelSelecionado);
     }
 
-   
-    
-    
+    private List<Responsavel> removidos;
+
     /**
      * Creates new form ResponsavelView
      */
     public ResponsavelView() {
         initComponents();
+        this.setPesquisar(true);
+        this.setSelecionar(false);
+        removidos = new ArrayList<Responsavel>();
     }
 
     /**
@@ -74,7 +117,13 @@ public class ResponsavelView extends javax.swing.JFrame {
 
         btSelecionar.setText("Selecionar");
 
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${selecionar}"), btSelecionar, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
         btCancelar.setText("Cancelar");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${selecionar}"), btCancelar, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -95,7 +144,13 @@ public class ResponsavelView extends javax.swing.JFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Pesquisa"));
 
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${pesquisar}"), txtPesquisa, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
         btPesquisar.setText("Pesquisar");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${pesquisar}"), btPesquisar, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -131,6 +186,11 @@ public class ResponsavelView extends javax.swing.JFrame {
         btSalvar.setText("Salvar");
 
         btExcluir.setText("Excluir");
+        btExcluir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btExcluirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -157,7 +217,7 @@ public class ResponsavelView extends javax.swing.JFrame {
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Formulário"));
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${responsavelSelecionado.nome}"), txtNome, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${responsavelSelecionado.nome}"), txtNome, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         lblNome.setText("Nome do Responsável *");
@@ -180,6 +240,30 @@ public class ResponsavelView extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
+
+        tblLista.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Nome"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
 
         org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, listaResponsavel, tblLista);
         org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${nome}"));
@@ -224,7 +308,16 @@ public class ResponsavelView extends javax.swing.JFrame {
 
     private void btNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btNovoActionPerformed
         listaResponsavel.add(new Responsavel());
+        int size = listaResponsavel.size();
+        tblLista.setRowSelectionInterval(size - 1, size - 1);
+        txtNome.requestFocus();
     }//GEN-LAST:event_btNovoActionPerformed
+
+    private void btExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btExcluirActionPerformed
+        int idx = tblLista.getSelectedRow();
+        removidos.add(listaResponsavel.get(idx));
+        listaResponsavel.remove(idx);
+    }//GEN-LAST:event_btExcluirActionPerformed
 
     /**
      * @param args the command line arguments
