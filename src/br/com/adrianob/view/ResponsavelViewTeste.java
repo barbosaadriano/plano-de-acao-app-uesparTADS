@@ -6,23 +6,33 @@
 package br.com.adrianob.view;
 
 import br.com.adrianob.model.domain.Responsavel;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.swing.JOptionPane;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 import org.jdesktop.observablecollections.ObservableCollections;
 
 /**
  *
  * @author Administrador
  */
-public class ResponsavelView extends javax.swing.JFrame {
+public class ResponsavelViewTeste extends javax.swing.JFrame implements ISelecao {
 
     private boolean selecionar;
 
@@ -80,7 +90,7 @@ public class ResponsavelView extends javax.swing.JFrame {
     /**
      * Creates new form ResponsavelView
      */
-    public ResponsavelView() {
+    public ResponsavelViewTeste() {
         initComponents();
         this.setPesquisar(true);
         this.setSelecionar(false);
@@ -108,6 +118,7 @@ public class ResponsavelView extends javax.swing.JFrame {
         btNovo = new javax.swing.JButton();
         btSalvar = new javax.swing.JButton();
         btExcluir = new javax.swing.JButton();
+        btExcluir1 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         txtNome = new javax.swing.JTextField();
         lblNome = new javax.swing.JLabel();
@@ -116,7 +127,7 @@ public class ResponsavelView extends javax.swing.JFrame {
 
         listaResponsavel = ObservableCollections.observableList(listaResponsavel);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Controles de Seleção"));
 
@@ -212,17 +223,27 @@ public class ResponsavelView extends javax.swing.JFrame {
             }
         });
 
+        btExcluir1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imprimir.png"))); // NOI18N
+        btExcluir1.setText("Imprimir");
+        btExcluir1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btExcluir1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(btNovo, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btSalvar, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btNovo, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btExcluir, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btSalvar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btExcluir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btExcluir1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -230,6 +251,7 @@ public class ResponsavelView extends javax.swing.JFrame {
             .addComponent(btNovo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btSalvar, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
             .addComponent(btExcluir, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+            .addComponent(btExcluir1, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Formulário"));
@@ -314,7 +336,7 @@ public class ResponsavelView extends javax.swing.JFrame {
         }
         if (tblLista.getSelectedRowCount() > 0) {
             if (JOptionPane.showConfirmDialog(this, "Tem certeza que deseja remo"
-                    + "ver?", "remover", JOptionPane.YES_NO_OPTION)
+                    + "ver?", "remover", JOptionPane.YES_NO_OPTION) 
                     == JOptionPane.YES_OPTION) {
                 int idx = tblLista.getSelectedRow();
                 Responsavel r = listaResponsavel.get(idx);
@@ -322,7 +344,7 @@ public class ResponsavelView extends javax.swing.JFrame {
                     removidos.add(r);
                 }
                 listaResponsavel.remove(idx);
-                tblLista.setRowSelectionInterval(tblLista.getRowCount() - 1,
+                tblLista.setRowSelectionInterval(tblLista.getRowCount() - 1, 
                         tblLista.getRowCount() - 1);
             }
         }
@@ -332,19 +354,18 @@ public class ResponsavelView extends javax.swing.JFrame {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("puACAO");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        Iterator<Responsavel> it = listaResponsavel.iterator();
-        while (it.hasNext()) {
-            Responsavel r = it.next();
-            r = em.merge(r);
-            em.persist(r);
+        for (Iterator<Responsavel> it = listaResponsavel.iterator(); it.hasNext();) {
+            Responsavel next = it.next();
+            next = em.merge(next);
+            em.persist(next);
         }
         em.getTransaction().commit();
         em.getTransaction().begin();
-        Iterator<Responsavel> itr = removidos.iterator();
-        while (itr.hasNext()) {
-            Responsavel r = itr.next();
-            r = em.merge(r);
-            em.remove(r);
+        for (Iterator<Responsavel> itr = removidos.iterator(); itr.hasNext();) {
+            Responsavel removido = itr.next();
+            Responsavel rem = em.merge(removido);
+            em.remove(rem);
+            itr.remove();
         }
         em.getTransaction().commit();
         em.close();
@@ -352,22 +373,33 @@ public class ResponsavelView extends javax.swing.JFrame {
     }//GEN-LAST:event_btSalvarActionPerformed
 
     private void btPesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPesquisarActionPerformed
+        listaResponsavel.clear();
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("puACAO");
         EntityManager em = emf.createEntityManager();
-        String sql = "Select r from br.com.adrianob.model.domain.Responsavel r where 1=1";
-        if (!txtPesquisa.getText().isEmpty()) {
-            sql += " and  r.nome like :nome ";
+        String hql = "Select r from br.com.adrianob.model.domain.Responsavel r where 1=1";
+        if (!txtPesquisa.getText().equals("")) {
+            hql += " and  r.nome like :nome ";
         }
-        Query qry = em.createQuery(sql);
-        if (!txtPesquisa.getText().isEmpty()) {
-            qry.setParameter("nome", "%"+txtPesquisa.getText()+"%");
+        Query qry = em.createQuery(hql);
+        if (!txtPesquisa.getText().equals("")) {
+            qry.setParameter("nome", "%" + txtPesquisa.getText() + "%");
         }
-        List<Responsavel> rl = qry.getResultList();
-        listaResponsavel.clear();
-        listaResponsavel.addAll(rl);
+        List<Responsavel> lr = qry.getResultList();
+        listaResponsavel.addAll(lr);
         em.close();
         emf.close();
     }//GEN-LAST:event_btPesquisarActionPerformed
+
+    private void btExcluir1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btExcluir1ActionPerformed
+        JasperReport pathjrxml;
+        try {
+            pathjrxml = JasperCompileManager.compileReport("relatorios/RelatorioResponsavel.jrxml");
+            JasperPrint printReport = JasperFillManager.fillReport(pathjrxml, null, new JRBeanCollectionDataSource(listaResponsavel));
+            JasperViewer.viewReport(printReport,false);
+        } catch (JRException ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao gerar relatório: "+ex.getMessage());
+        }
+    }//GEN-LAST:event_btExcluir1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -386,20 +418,21 @@ public class ResponsavelView extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ResponsavelView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ResponsavelViewTeste.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ResponsavelView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ResponsavelViewTeste.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ResponsavelView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ResponsavelViewTeste.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ResponsavelView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ResponsavelViewTeste.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ResponsavelView().setVisible(true);
+                new ResponsavelViewTeste().setVisible(true);
             }
         });
     }
@@ -407,6 +440,7 @@ public class ResponsavelView extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btCancelar;
     private javax.swing.JButton btExcluir;
+    private javax.swing.JButton btExcluir1;
     private javax.swing.JButton btNovo;
     private javax.swing.JButton btPesquisar;
     private javax.swing.JButton btSalvar;
@@ -423,4 +457,10 @@ public class ResponsavelView extends javax.swing.JFrame {
     private javax.swing.JTextField txtPesquisa;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void setListener(ActionListener listener) {
+        this.btCancelar.addActionListener(listener);
+        this.btSelecionar.addActionListener(listener);
+    }
 }

@@ -10,6 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  *
@@ -18,12 +21,15 @@ import java.util.Iterator;
 public class TelaTeste extends javax.swing.JFrame implements ActionListener {
 
     private ListaSituacao ls;
+    private ResponsavelViewTeste listaResp;
+    private String pesquisar = "";
 
     /**
      * Creates new form TelaTeste
      */
     public TelaTeste() {
         initComponents();
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -38,6 +44,7 @@ public class TelaTeste extends javax.swing.JFrame implements ActionListener {
         btProcurar = new javax.swing.JButton();
         txtResultado = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -55,6 +62,13 @@ public class TelaTeste extends javax.swing.JFrame implements ActionListener {
             }
         });
 
+        jButton2.setText("Teste tela Responsável 1");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -62,12 +76,17 @@ public class TelaTeste extends javax.swing.JFrame implements ActionListener {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtResultado)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btProcurar)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 72, Short.MAX_VALUE))
-                    .addComponent(txtResultado))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btProcurar)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(141, 141, 141)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 72, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -76,10 +95,13 @@ public class TelaTeste extends javax.swing.JFrame implements ActionListener {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btProcurar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)))
                 .addGap(18, 18, 18)
                 .addComponent(txtResultado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 11, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -88,14 +110,30 @@ public class TelaTeste extends javax.swing.JFrame implements ActionListener {
     private void btProcurarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btProcurarActionPerformed
         this.ls = new ListaSituacao();
         this.ls.setListener(this);
+        this.pesquisar = "situacao";
+        this.ls.setLocationRelativeTo(null);
+        this.ls.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.ls.setVisible(true);
     }//GEN-LAST:event_btProcurarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         ResponsavelView rv = new ResponsavelView();
+        rv.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        rv.setLocationRelativeTo(null);
         rv.setSelecionar(true);
         rv.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        listaResp = new ResponsavelViewTeste();
+        listaResp.setSelecionar(true);
+        listaResp.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        listaResp.setLocationRelativeTo(null);
+        listaResp.setPesquisar(true);
+        listaResp.setListener(this);
+        this.pesquisar = "responsavel";
+        listaResp.setVisible(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -135,30 +173,39 @@ public class TelaTeste extends javax.swing.JFrame implements ActionListener {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btProcurar;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JTextField txtResultado;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        //System.out.println(e);
-        if (e.getActionCommand().equals("Selecionar")) {
-            this.ls.selecionar();
-            Object selecao = this.ls.getSelecao();
-            if (selecao instanceof Situacao) {
-                Situacao sit = (Situacao) selecao;
-                txtResultado.setText(sit.getDescricao());
-            } else if (selecao instanceof ArrayList) {
-                ArrayList<Situacao> sits = (ArrayList<Situacao>) selecao;
-                Iterator<Situacao> iterator = sits.iterator();
-                while (iterator.hasNext()) {
-                    Situacao next = iterator.next();
-                    txtResultado.setText(txtResultado.getText() + ", "
-                            + next.getDescricao());
+        if (this.pesquisar.equals("situacao")) {
+            if (e.getActionCommand().equals("Selecionar")) {
+                this.ls.selecionar();
+                Object selecao = this.ls.getSelecao();
+                if (selecao instanceof Situacao) {
+                    Situacao sit = (Situacao) selecao;
+                    txtResultado.setText(sit.getDescricao());
+                } else if (selecao instanceof ArrayList) {
+                    ArrayList<Situacao> sits = (ArrayList<Situacao>) selecao;
+                    Iterator<Situacao> iterator = sits.iterator();
+                    while (iterator.hasNext()) {
+                        Situacao next = iterator.next();
+                        txtResultado.setText(txtResultado.getText() + ", "
+                                + next.getDescricao());
+                    }
                 }
+                this.ls.dispose();
+            } else if (e.getActionCommand().equalsIgnoreCase("cancelar")) {
+                // ações do cancelar  
             }
-            this.ls.dispose();
-        } else if (e.getActionCommand().equalsIgnoreCase("cancelar")) {
-            // ações do cancelar  
+        } else if (this.pesquisar.equals("responsavel")) {
+            if (e.getActionCommand().equals("Selecionar")) {
+                this.txtResultado.setText(this.listaResp.getResponsavelSelecionado().getNome());
+                this.listaResp.dispose();
+            } else if (e.getActionCommand().equals("Cancelar")) {
+                this.listaResp.dispose();
+            }
         }
     }
 }
