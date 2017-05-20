@@ -6,15 +6,13 @@
 package br.com.adrianob.view;
 
 import br.com.adrianob.model.domain.Responsavel;
+import br.com.adrianob.service.DaoGenerico;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import org.jdesktop.observablecollections.ObservableCollections;
 
@@ -329,44 +327,26 @@ public class ResponsavelView extends javax.swing.JFrame {
     }//GEN-LAST:event_btExcluirActionPerformed
 
     private void btSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSalvarActionPerformed
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("puACAO");
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        Iterator<Responsavel> it = listaResponsavel.iterator();
-        while (it.hasNext()) {
-            Responsavel r = it.next();
-            r = em.merge(r);
-            em.persist(r);
-        }
-        em.getTransaction().commit();
-        em.getTransaction().begin();
-        Iterator<Responsavel> itr = removidos.iterator();
-        while (itr.hasNext()) {
-            Responsavel r = itr.next();
-            r = em.merge(r);
-            em.remove(r);
-        }
-        em.getTransaction().commit();
-        em.close();
-        emf.close();
+        DaoGenerico.getInstance()
+                .salvarOuRemover(listaResponsavel, DaoGenerico.SALVAR);
+        DaoGenerico.getInstance()
+                .salvarOuRemover(removidos, DaoGenerico.REMOVER);
+        DaoGenerico.getInstance()
+                .closeEm();
     }//GEN-LAST:event_btSalvarActionPerformed
 
     private void btPesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPesquisarActionPerformed
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("puACAO");
-        EntityManager em = emf.createEntityManager();
         String sql = "Select r from br.com.adrianob.model.domain.Responsavel r where 1=1";
         if (!txtPesquisa.getText().isEmpty()) {
             sql += " and  r.nome like :nome ";
         }
-        Query qry = em.createQuery(sql);
+        Map<String,String> parametros = new HashMap<String, String>();
         if (!txtPesquisa.getText().isEmpty()) {
-            qry.setParameter("nome", "%"+txtPesquisa.getText()+"%");
+            parametros.put("nome", "%" + txtPesquisa.getText() + "%");
         }
-        List<Responsavel> rl = qry.getResultList();
+        List<Responsavel> rl = DaoGenerico.getInstance().listar(sql, parametros);
         listaResponsavel.clear();
         listaResponsavel.addAll(rl);
-        em.close();
-        emf.close();
     }//GEN-LAST:event_btPesquisarActionPerformed
 
     /**
